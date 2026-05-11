@@ -1,9 +1,9 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { NextResponse, type NextRequest, type NextProxy, type ProxyConfig } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_ROUTES = ["/api/auth/register", "/api/auth/login"];
 
-export const proxy: NextProxy = async (request: NextRequest) => {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (PUBLIC_ROUTES.some((r) => pathname.startsWith(r))) {
@@ -31,15 +31,17 @@ export const proxy: NextProxy = async (request: NextRequest) => {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
   return supabaseResponse;
-};
+}
 
-export const config: ProxyConfig = {
+export const config = {
   matcher: ["/api/:path*"],
 };
