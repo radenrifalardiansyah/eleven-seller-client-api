@@ -63,3 +63,22 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return errorResponse("Internal server error", 500);
   }
 }
+
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params;
+    const { supabase, error } = await getAuthenticatedSeller();
+    if (error) return error;
+
+    const { error: dbError } = await supabase!
+      .from("resellers")
+      .delete()
+      .eq("id", id);
+
+    if (dbError) return errorResponse(dbError.message);
+
+    return successResponse({ message: "Reseller berhasil dihapus" });
+  } catch {
+    return errorResponse("Internal server error", 500);
+  }
+}

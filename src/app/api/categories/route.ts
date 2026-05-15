@@ -4,12 +4,13 @@ import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function GET() {
   try {
-    const { supabase, error } = await getAuthenticatedSeller();
+    const { seller, supabase, error } = await getAuthenticatedSeller();
     if (error) return error;
 
     const { data, error: dbError } = await supabase!
       .from("categories")
       .select("*")
+      .eq("tenant_id", seller!.tenant_id)
       .order("name");
 
     if (dbError) return errorResponse(dbError.message);
