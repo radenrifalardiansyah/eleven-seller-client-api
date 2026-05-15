@@ -4,12 +4,14 @@ import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function GET() {
   try {
-    const { supabase, error } = await getAuthenticatedSeller();
+    const { seller, supabase, error } = await getAuthenticatedSeller();
     if (error) return error;
 
     const { data, error: dbError } = await supabase!
-      .from("categories")
-      .select("*")
+      .from("warehouses")
+      .select("*, stock_distribution(product_id, quantity)")
+      .eq("tenant_id", seller!.tenant_id)
+      .order("is_primary", { ascending: false })
       .order("name");
 
     if (dbError) return errorResponse(dbError.message);
@@ -26,17 +28,21 @@ export async function POST(request: NextRequest) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, image_url } = body;
+    const { code, name, address, city, pic, phone, is_primary } = body;
 
-    if (!name) return errorResponse("name wajib diisi");
+    if (!code || !name) return errorResponse("code dan name wajib diisi");
 
     const { data, error: dbError } = await supabase!
-      .from("categories")
+      .from("warehouses")
       .insert({
-        tenant_id:   seller!.tenant_id,
+        tenant_id:  seller!.tenant_id,
+        code:       code.toUpperCase(),
         name,
-        description: description ?? null,
-        image_url:   image_url   ?? null,
+        address:    address    ?? null,
+        city:       city       ?? null,
+        pic:        pic        ?? null,
+        phone:      phone      ?? null,
+        is_primary: is_primary ?? false,
       })
       .select()
       .single();

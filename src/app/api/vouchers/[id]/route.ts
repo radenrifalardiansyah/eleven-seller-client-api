@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, value, min_purchase, max_discount, quota, start_date, end_date, is_disabled } = body;
+    const { name, description, value, min_purchase, max_discount, quota, start_date, end_date, disabled } = body;
 
     const patch: Record<string, unknown> = {};
     if (name         !== undefined) patch.name         = name;
@@ -42,7 +42,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (quota        !== undefined) patch.quota        = quota;
     if (start_date   !== undefined) patch.start_date   = start_date;
     if (end_date     !== undefined) patch.end_date     = end_date;
-    if (is_disabled  !== undefined) patch.is_disabled  = is_disabled;
+    if (disabled     !== undefined) patch.disabled     = disabled;
 
     const { data, error: dbError } = await supabase!
       .from("vouchers")

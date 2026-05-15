@@ -3,34 +3,40 @@ import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function GET() {
   try {
-    const { supabase, error } = await getAuthenticatedSeller();
+    const { seller, supabase, error } = await getAuthenticatedSeller();
     if (error) return error;
+
+    const tenantId = seller!.tenant_id;
 
     const [products, orders, revenue, customers, lowStock] = await Promise.all([
       supabase!
         .from("products")
         .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
         .eq("status", "active"),
 
       supabase!
         .from("orders")
-        .select("id, status", { count: "exact" }),
+        .select("id, status", { count: "exact" })
+        .eq("tenant_id", tenantId),
 
       supabase!
         .from("orders")
         .select("total_amount")
+        .eq("tenant_id", tenantId)
         .eq("status", "delivered"),
 
       supabase!
         .from("customers")
         .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
         .eq("status", "active"),
 
       supabase!
         .from("products")
         .select("id", { count: "exact", head: true })
-        .lte("stock", 5)
-        .eq("status", "active"),
+        .eq("tenant_id", tenantId)
+        .eq("status", "low_stock"),
     ]);
 
     const totalRevenue = (revenue.data ?? []).reduce(

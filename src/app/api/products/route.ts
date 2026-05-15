@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     let query = supabase!
       .from("products")
-      .select("*, categories(id, name), product_images(id, image_url, is_primary, sort_order)", { count: "exact" })
+      .select(
+        "*, categories(id, name), product_images(id, image_url, is_primary, sort_order), stock_distribution(warehouse_id, quantity)",
+        { count: "exact" }
+      )
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -41,27 +44,26 @@ export async function POST(request: NextRequest) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, sku, price, stock, weight, category_id, status, is_featured } = body;
+    const { name, description, sku, price, weight, dimensions, category_id, status, featured } = body;
 
-    if (!name || !sku || price === undefined || stock === undefined) {
-      return errorResponse("name, sku, price, dan stock wajib diisi");
+    if (!name || !sku || price === undefined) {
+      return errorResponse("name, sku, dan price wajib diisi");
     }
-    if (price < 0)  return errorResponse("Harga tidak boleh negatif");
-    if (stock < 0)  return errorResponse("Stok tidak boleh negatif");
+    if (price < 0) return errorResponse("Harga tidak boleh negatif");
 
     const { data, error: dbError } = await supabase!
       .from("products")
       .insert({
-        company_id:  seller!.company_id,
+        tenant_id:   seller!.tenant_id,
         name,
         description: description ?? null,
         sku,
         price,
-        stock,
         weight:      weight      ?? 0,
+        dimensions:  dimensions  ?? null,
         category_id: category_id ?? null,
         status:      status      ?? "active",
-        is_featured: is_featured ?? false,
+        featured:    featured    ?? false,
       })
       .select()
       .single();

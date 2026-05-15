@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
     if (error) return errorResponse(error.message, 401);
 
     const { data: profile } = await supabase
-      .from("seller_profiles")
-      .select("id, company_id, role, full_name, phone, avatar_url, is_active, companies(id, code, name, status)")
-      .eq("id", data.user.id)
+      .from("tenant_users")
+      .select("id, tenant_id, role, name, phone, avatar_url, status, tenants(id, subdomain, store_name, logo_url, status)")
+      .eq("user_id", data.user.id)
       .single();
 
     return successResponse({ user: data.user, session: data.session, profile });

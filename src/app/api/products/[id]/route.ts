@@ -12,7 +12,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const { data, error: dbError } = await supabase!
       .from("products")
-      .select("*, categories(id, name), product_images(id, image_url, alt_text, is_primary, sort_order)")
+      .select(
+        "*, categories(id, name), product_images(id, image_url, alt_text, is_primary, sort_order), stock_distribution(warehouse_id, quantity, warehouses(id, name, code))"
+      )
       .eq("id", id)
       .single();
 
@@ -31,21 +33,20 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, sku, price, stock, weight, category_id, status, is_featured } = body;
+    const { name, description, sku, price, weight, dimensions, category_id, status, featured } = body;
 
     if (price !== undefined && price < 0) return errorResponse("Harga tidak boleh negatif");
-    if (stock !== undefined && stock < 0) return errorResponse("Stok tidak boleh negatif");
 
     const patch: Record<string, unknown> = {};
     if (name        !== undefined) patch.name        = name;
     if (description !== undefined) patch.description = description;
     if (sku         !== undefined) patch.sku         = sku;
     if (price       !== undefined) patch.price       = price;
-    if (stock       !== undefined) patch.stock       = stock;
     if (weight      !== undefined) patch.weight      = weight;
+    if (dimensions  !== undefined) patch.dimensions  = dimensions;
     if (category_id !== undefined) patch.category_id = category_id;
     if (status      !== undefined) patch.status      = status;
-    if (is_featured !== undefined) patch.is_featured = is_featured;
+    if (featured    !== undefined) patch.featured    = featured;
 
     const { data, error: dbError } = await supabase!
       .from("products")

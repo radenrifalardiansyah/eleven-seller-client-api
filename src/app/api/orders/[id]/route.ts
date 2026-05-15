@@ -18,7 +18,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
         `*, customers(id, name, email, phone),
          order_items(id, product_id, product_name, product_sku, quantity, unit_price, total_price),
          payments(id, payment_method, amount, status, transaction_id, paid_at),
-         order_return_requests(id, type, reason, status, request_date)`
+         order_returns(id, type, reason, status, request_date)`
       )
       .eq("id", id)
       .single();

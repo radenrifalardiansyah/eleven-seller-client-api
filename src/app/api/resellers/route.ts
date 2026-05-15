@@ -4,7 +4,7 @@ import { successResponse, errorResponse, paginatedResponse } from "@/lib/utils/r
 
 export async function GET(request: NextRequest) {
   try {
-    const { supabase, error } = await getAuthenticatedSeller();
+    const { seller, supabase, error } = await getAuthenticatedSeller();
     if (error) return error;
 
     const { searchParams } = new URL(request.url);
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     let query = supabase!
       .from("resellers")
       .select("*", { count: "exact" })
+      .eq("tenant_id", seller!.tenant_id)
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -41,16 +42,17 @@ export async function POST(request: NextRequest) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, email, phone, city, address, referral_code } = body;
+    const { code, name, email, phone, city, address, referral_code } = body;
 
-    if (!name || !email || !referral_code) {
-      return errorResponse("name, email, dan referral_code wajib diisi");
+    if (!code || !name || !email || !referral_code) {
+      return errorResponse("code, name, email, dan referral_code wajib diisi");
     }
 
     const { data, error: dbError } = await supabase!
       .from("resellers")
       .insert({
-        company_id:    seller!.company_id,
+        tenant_id:     seller!.tenant_id,
+        code:          code.toUpperCase(),
         name,
         email,
         phone:         phone         ?? null,

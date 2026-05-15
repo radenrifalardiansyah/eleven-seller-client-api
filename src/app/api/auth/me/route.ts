@@ -9,9 +9,9 @@ export async function GET() {
     if (error || !user) return errorResponse("Unauthorized", 401);
 
     const { data: profile } = await supabase
-      .from("seller_profiles")
-      .select("*, companies(id, code, name, logo_url, status)")
-      .eq("id", user.id)
+      .from("tenant_users")
+      .select("*, tenants(id, subdomain, store_name, logo_url, primary_color, status)")
+      .eq("user_id", user.id)
       .single();
 
     return successResponse({ user, profile });

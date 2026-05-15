@@ -4,12 +4,13 @@ import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function GET() {
   try {
-    const { supabase, error } = await getAuthenticatedSeller();
+    const { seller, supabase, error } = await getAuthenticatedSeller();
     if (error) return error;
 
     const { data, error: dbError } = await supabase!
       .from("store_settings")
-      .select("*")
+      .select("*, tenants(id, subdomain, store_name, logo_url, primary_color, status)")
+      .eq("tenant_id", seller!.tenant_id)
       .single();
 
     if (dbError || !data) return errorResponse("Pengaturan toko tidak ditemukan", 404);
@@ -27,20 +28,20 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
     const {
-      store_name, description, address, city, province, postal_code,
-      phone, email, website, operational_hours, logo_url, tagline,
-      banner_image_url, show_reviews, show_best_sellers,
-      free_shipping_min, packaging_fee, processing_days, theme_color,
+      description, address, city, province, postal_code,
+      phone, email, website, operational_hours, theme_color, tagline,
+      banner_url, show_reviews, show_best_sellers,
+      free_shipping_min, packaging_fee, processing_days,
       notif_email_new_order, notif_sms_payment, notif_push,
       notif_email_low_stock, notif_email_promotion,
     } = body;
 
     const patch: Record<string, unknown> = {};
     const fields = {
-      store_name, description, address, city, province, postal_code,
-      phone, email, website, operational_hours, logo_url, tagline,
-      banner_image_url, show_reviews, show_best_sellers,
-      free_shipping_min, packaging_fee, processing_days, theme_color,
+      description, address, city, province, postal_code,
+      phone, email, website, operational_hours, theme_color, tagline,
+      banner_url, show_reviews, show_best_sellers,
+      free_shipping_min, packaging_fee, processing_days,
       notif_email_new_order, notif_sms_payment, notif_push,
       notif_email_low_stock, notif_email_promotion,
     };
@@ -51,7 +52,7 @@ export async function PUT(request: NextRequest) {
     const { data, error: dbError } = await supabase!
       .from("store_settings")
       .update(patch)
-      .eq("company_id", seller!.company_id)
+      .eq("tenant_id", seller!.tenant_id)
       .select()
       .single();
 

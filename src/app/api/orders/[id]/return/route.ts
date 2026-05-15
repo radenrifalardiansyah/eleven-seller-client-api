@@ -11,7 +11,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     if (error) return error;
 
     const { data, error: dbError } = await supabase!
-      .from("order_return_requests")
+      .from("order_returns")
       .select("*")
       .eq("order_id", id)
       .order("request_date", { ascending: false });
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     }
 
     const { data, error: dbError } = await supabase!
-      .from("order_return_requests")
+      .from("order_returns")
       .insert({ order_id: id, type, reason, notes: notes ?? null })
       .select()
       .single();
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     const { data, error: dbError } = await supabase!
-      .from("order_return_requests")
+      .from("order_returns")
       .update(patch)
       .eq("id", return_id)
       .eq("order_id", id)

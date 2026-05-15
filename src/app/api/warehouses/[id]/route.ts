@@ -11,12 +11,14 @@ export async function GET(_req: NextRequest, { params }: Params) {
     if (error) return error;
 
     const { data, error: dbError } = await supabase!
-      .from("categories")
-      .select("*")
+      .from("warehouses")
+      .select(
+        "*, stock_distribution(product_id, quantity, products(id, name, sku, status))"
+      )
       .eq("id", id)
       .single();
 
-    if (dbError || !data) return errorResponse("Kategori tidak ditemukan", 404);
+    if (dbError || !data) return errorResponse("Gudang tidak ditemukan", 404);
 
     return successResponse(data);
   } catch {
@@ -31,22 +33,25 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, image_url, status } = body;
+    const { name, address, city, pic, phone, is_primary, active } = body;
 
     const patch: Record<string, unknown> = {};
-    if (name        !== undefined) patch.name        = name;
-    if (description !== undefined) patch.description = description;
-    if (image_url   !== undefined) patch.image_url   = image_url;
-    if (status      !== undefined) patch.status      = status;
+    if (name       !== undefined) patch.name       = name;
+    if (address    !== undefined) patch.address    = address;
+    if (city       !== undefined) patch.city       = city;
+    if (pic        !== undefined) patch.pic        = pic;
+    if (phone      !== undefined) patch.phone      = phone;
+    if (is_primary !== undefined) patch.is_primary = is_primary;
+    if (active     !== undefined) patch.active     = active;
 
     const { data, error: dbError } = await supabase!
-      .from("categories")
+      .from("warehouses")
       .update(patch)
       .eq("id", id)
       .select()
       .single();
 
-    if (dbError || !data) return errorResponse("Kategori tidak ditemukan", 404);
+    if (dbError || !data) return errorResponse("Gudang tidak ditemukan", 404);
 
     return successResponse(data);
   } catch {
@@ -61,13 +66,13 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     if (error) return error;
 
     const { error: dbError } = await supabase!
-      .from("categories")
+      .from("warehouses")
       .delete()
       .eq("id", id);
 
     if (dbError) return errorResponse(dbError.message);
 
-    return successResponse({ message: "Kategori berhasil dihapus" });
+    return successResponse({ message: "Gudang berhasil dihapus" });
   } catch {
     return errorResponse("Internal server error", 500);
   }

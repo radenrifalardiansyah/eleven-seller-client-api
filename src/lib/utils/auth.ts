@@ -14,13 +14,13 @@ export async function getAuthenticatedSeller() {
   }
 
   const { data: seller, error: sellerError } = await supabase
-    .from("seller_profiles")
-    .select("id, company_id, role, full_name, phone, avatar_url, is_active")
-    .eq("id", user.id)
+    .from("tenant_users")
+    .select("id, tenant_id, role, name, phone, avatar_url, status")
+    .eq("user_id", user.id)
     .single();
 
   if (sellerError || !seller) {
-    return { user, seller: null, supabase: null, error: errorResponse("Profil seller tidak ditemukan", 404) };
+    return { user, seller: null, supabase: null, error: errorResponse("Profil pengguna tidak ditemukan", 404) };
   }
 
   return { user, seller, supabase, error: null };
