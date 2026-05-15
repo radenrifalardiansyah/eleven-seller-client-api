@@ -3,10 +3,11 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function GET(request: NextRequest) {
-  const subdomain = request.nextUrl.searchParams.get("subdomain");
+  const params = request.nextUrl.searchParams;
+  const subdomain = params.get("subdomain") ?? params.get("tenant");
 
   if (!subdomain) {
-    return errorResponse("Parameter subdomain wajib diisi", 400);
+    return errorResponse("Parameter subdomain atau tenant wajib diisi", 400);
   }
 
   try {
