@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createAdminClient, createServiceClient } from "@/lib/supabase/server";
 import { successResponse, errorResponse } from "@/lib/utils/response";
 
 export async function POST(request: NextRequest) {
@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       return errorResponse("email, password, owner_name, store_name, dan subdomain wajib diisi");
     }
 
+    const adminClient = createAdminClient();
     const serviceClient = await createServiceClient();
 
     const { data: existing } = await serviceClient
@@ -21,12 +22,11 @@ export async function POST(request: NextRequest) {
 
     if (existing) return errorResponse("Subdomain sudah digunakan", 409);
 
-    const supabase = await createClient();
-
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
       email,
       password,
-      options: { data: { full_name: owner_name } },
+      email_confirm: true,
+      user_metadata: { full_name: owner_name },
     });
 
     if (authError) return errorResponse(authError.message);
