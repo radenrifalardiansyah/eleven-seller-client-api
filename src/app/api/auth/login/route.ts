@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     return successResponse({ user: data.user, session: data.session, profile });
-  } catch {
-    return errorResponse("Internal server error", 500);
+  } catch (e) {
+    return errorResponse(`Internal server error: ${e instanceof Error ? e.message : String(e)}`, 500);
   }
 }
