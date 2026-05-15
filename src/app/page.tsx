@@ -29,7 +29,7 @@ export default function Page() {
   return (
     <html lang="id">
       <head>
-        <title>Eleven Seller API</title>
+        <title>LapaKoo API</title>
         <style>{`
           body { font-family: monospace; background: #0f0f0f; color: #e5e5e5; padding: 2rem; }
           h1 { color: #a78bfa; margin-bottom: 0.25rem; }
@@ -41,7 +41,7 @@ export default function Page() {
         `}</style>
       </head>
       <body>
-        <h1>Eleven Seller API</h1>
+        <h1>LapaKoo API</h1>
         <p>v1.0.0 — All routes require Authorization except /auth/register and /auth/login</p>
         <table>
           <tbody>

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Eleven Seller API",
+  title: "LapaKoo API",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
