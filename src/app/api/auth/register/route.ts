@@ -54,7 +54,6 @@ export async function POST(request: NextRequest) {
         name:      owner_name,
         email,
         role:      "owner",
-        phone:     phone ?? null,
       })
       .select()
       .single();
