@@ -20,8 +20,7 @@ export async function getAuthenticatedSeller() {
     .single();
 
   if (sellerError || !seller) {
-    const msg = sellerError ? sellerError.message : "no row returned";
-    return { user, seller: null, supabase: null, error: errorResponse(`Profil pengguna tidak ditemukan: ${msg}`, 404) };
+    return { user, seller: null, supabase: null, error: errorResponse("Profil pengguna tidak ditemukan", 404) };
   }
 
   return { user, seller, supabase, error: null };

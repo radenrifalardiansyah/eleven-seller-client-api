@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     let query = supabase!
       .from("stock_movements")
       .select(
-        "*, products(id, name, sku), warehouses(id, name, code)",
+        "*, products(id, name, sku), warehouses!warehouse_id(id, name, code)",
         { count: "exact" }
       )
       .eq("tenant_id", seller!.tenant_id)
