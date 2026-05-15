@@ -19,7 +19,10 @@ export async function middleware(request: NextRequest) {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+      {
+        global: { headers: { Authorization: `Bearer ${bearerToken}` } },
+        auth: { autoRefreshToken: false, persistSession: false },
+      }
     );
     const { data: { user } } = await supabase.auth.getUser(bearerToken);
     if (!user) {

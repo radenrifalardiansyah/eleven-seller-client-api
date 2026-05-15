@@ -12,7 +12,10 @@ export async function getAuthenticatedSeller() {
     ? createSupabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
+        {
+          global: { headers: { Authorization: `Bearer ${bearerToken}` } },
+          auth: { autoRefreshToken: false, persistSession: false },
+        }
       )
     : await createClient();
 
