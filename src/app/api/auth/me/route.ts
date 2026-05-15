@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { successResponse, errorResponse } from "@/lib/utils/response";
 
@@ -15,6 +16,29 @@ export async function GET() {
       .single();
 
     return successResponse({ user, profile });
+  } catch {
+    return errorResponse("Internal server error", 500);
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return errorResponse("Unauthorized", 401);
+
+    const body = await request.json();
+    const { password } = body;
+
+    if (!password || typeof password !== "string" || password.length < 8) {
+      return errorResponse("Kata sandi baru minimal 8 karakter");
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return errorResponse(error.message);
+
+    return successResponse({ message: "Kata sandi berhasil diubah" });
   } catch {
     return errorResponse("Internal server error", 500);
   }
