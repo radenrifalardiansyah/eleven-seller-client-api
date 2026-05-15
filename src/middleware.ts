@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_ROUTES = ["/api/auth/register", "/api/auth/login", "/api/tenants/resolve"];
@@ -10,6 +11,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Support Bearer token from Authorization header (used by the seller SPA)
+  const authHeader = request.headers.get("Authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
+  if (bearerToken) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    const { data: { user } } = await supabase.auth.getUser(bearerToken);
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
+  // Fall back to cookie-based session (browser / SSR flows)
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

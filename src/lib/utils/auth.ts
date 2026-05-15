@@ -1,13 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { headers } from "next/headers";
 import { errorResponse } from "./response";
 
 export async function getAuthenticatedSeller() {
-  const supabase = await createClient();
+  const headerStore = await headers();
+  const authHeader = headerStore.get("Authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
+  const supabase = bearerToken
+    ? createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      )
+    : await createClient();
 
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = bearerToken
+    ? await supabase.auth.getUser(bearerToken)
+    : await supabase.auth.getUser();
 
   if (authError || !user) {
     return { user: null, seller: null, supabase: null, error: errorResponse("Unauthorized", 401) };
