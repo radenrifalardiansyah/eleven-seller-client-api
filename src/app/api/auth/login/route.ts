@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from("tenant_users")
-      .select("id, tenant_id, role, name, phone, avatar_url, status, tenants(id, subdomain, store_name, logo_url, status)")
+      .select("id, tenant_id, role, name, avatar_url, status, tenants(id, subdomain, store_name, logo_url, status)")
       .eq("user_id", data.user.id)
       .single();
 
     return successResponse({ user: data.user, session: data.session, profile });
-  } catch (e) {
-    return errorResponse(`Internal server error: ${e instanceof Error ? e.message : String(e)}`, 500);
+  } catch {
+    return errorResponse("Internal server error", 500);
   }
 }

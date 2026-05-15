@@ -15,7 +15,7 @@ export async function getAuthenticatedSeller() {
 
   const { data: seller, error: sellerError } = await supabase
     .from("tenant_users")
-    .select("id, tenant_id, role, name, phone, avatar_url, status")
+    .select("id, tenant_id, role, name, avatar_url, status")
     .eq("user_id", user.id)
     .single();
 
